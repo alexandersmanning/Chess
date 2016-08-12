@@ -2,10 +2,19 @@ require 'rspec'
 require 'piece'
 
 describe "Piece" do
-  let(:piece) { Piece.new([0,0]) }
-  let(:empty_board) { }
+  let(:piece) { Piece.new(:black) }
+  let(:empty_board) { Board.new }
+  let(:board) { Board.new }
+
+  before :each do
+    5.times do |n|
+      board[0, n] = Piece.new(:white)
+      board[7, n] = Piece.new(:black)
+    end
+  end
+
   describe "#initialize" do
-    it "has an accessible location" do
+    xit "has an accessible location" do
       expect(piece.location).to match [0,0]
     end
 
@@ -14,8 +23,15 @@ describe "Piece" do
     end
   end
 
+  describe "#in_board?" do
+    it "verifies a location is within spec" do
+      expect(board.in_board?([8,1])).to be_falsey
+      expect(board.in_board?([0,7])).to be_truthy
+    end
+  end
+
   describe "#move" do
-    it "takes in a board"
+    it "takes in a board and location"
 
     it "provides the move directions and limits"
   end

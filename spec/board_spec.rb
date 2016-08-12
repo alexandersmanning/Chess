@@ -1,9 +1,17 @@
 require 'rspec'
 require 'board'
+require 'piece'
 require 'byebug'
 
 describe "Board" do
   let(:board) { Board.new }
+
+  before :each do
+    5.times do |n|
+      board[0, n] = Piece.new(:white)
+      board[7, n] = Piece.new(:black)
+    end
+  end
 
   describe "#initialize" do
     it "creates a board with an empty 8x8 grid" do
@@ -14,10 +22,10 @@ describe "Board" do
 
   describe "#[]" do
     it "returns the piece at a specified location" do
-      expect(board[0,0]).to be_nil
+      expect(board[1,1]).to be_nil
 
-      board.grid[0][0] = :p
-      expect(board[0,0]).to eq :p
+      board.grid[1][1] = :p
+      expect(board[1,1]).to eq :p
     end
   end
 
@@ -28,12 +36,24 @@ describe "Board" do
     end
   end
 
-  describe "#piece locations" do
+  describe "#piece_locations" do
+    it "lists all pieces a player has" do
+      locations = [[0,0], [0,1], [0,2], [0,3], [0,4]]
+      expect(board.piece_locations(:white)).to match locations
 
+      locations = [[7,0], [7,1], [7,2], [7,3], [7,4]]
+      expect(board.piece_locations(:black)).to match locations
+    end
   end
 
-  describe "#opponent locations" do
+  describe "#grid_search" do
+    it "searches the grid per the options" do
+      locations = [[0,0], [0,1], [0,2], [0,3], [0,4]]
+      expect(board.grid_search({:player => :white})).to match locations
+    end
 
-  end 
+    it "finds specific pieces"
+  end
+
 
 end
