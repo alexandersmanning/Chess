@@ -20,9 +20,20 @@ end
 
 class Pawn < Piece
   SETUP = { white: (0..7).map { |n| [1, n] }, black: (0..7).map { |n| [6, n] } }
+  DIR = { white: :+, black: :- }
+  def move_list(location, board)
+    row, col = *location
+    occupied = board.get_occupied
 
-  def move_list(location)
+    list = [row.send(DIR[@player], 1), col]
+    list.push *([
+      [row.send(DIR[@player], 1), col + 1],
+      [row.send(DIR[@player], 1), col - 1]
+      ] & occupied)
 
+    list.push [row.send(DIR[@player], 2), col] unless @has_moved
+
+    list - board.piece_locations(@player)
   end
 end
 
