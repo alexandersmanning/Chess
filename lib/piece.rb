@@ -3,46 +3,79 @@ class Piece
 
   def initialize(player)
     @player = player
+    @has_moved = false
   end
 
   def move_list(location, board, options = {})
-    list = []
-    row_cur, col_cur = *location
-    limit  =options[:limit] || board.board_size
+    limit = options[:limit] || board.board_size
+    occupied = board.get_occupied
 
-    [:horizontal, :vertical, :diag_left, :diag_right.].each do |method|
-      list << self.send(method, row_cur, col_cur, limit)
+    moves = [:horizontal, :vertical, :diagonal].each_with_object([]) do |method, list|
+      list.push *board.send(method, location, limit, occupied) if options[method]
     end
-    #create start and end point for each
 
-      # this happens somewhere else
-      #find all move locations, subtract current piece locations,
-      #find & with opponent piece, then subtract opponent piece
-      #then add &
+    return moves - board.piece_locations(@player)
   end
+end
 
-  def horizontal(row, col, limit)
-    start_point, end_point = *[[col - limit, 0].max, [col + limit, board.board_size].min]
+class Pawn < Piece
+  SETUP = { white: (0..7).map { |n| [1, n] }, black: (0..7).map { |n| [6, n] } }
 
-    (start_point..end_point).inject do |list, new_col|
-      list << [cur_row, new_col]
-    end
-  end
-
-  def vertical(row, col, limit)
-    start_point, end_point = *[[row - limit, 0].max, [row + limit, board.board_size].min]
-
-    (start_point..end_point).each do |new_row|
-      list << [new_row, cur_col]
-    end
-  end
-
-  def diag_left(row, col, limit)
+  def move_list(location)
 
   end
+end
 
-  def diag_right(row, col, limit)
+class Knight < Piece
+  SETUP = { white: [[0 ,1], [0, 6]], black: [[7, 1], [7, 6]] }
 
-  end 
+  def move_list(location, board)
+    row, col = *location
+    occupied = board.piece_locations(@player)
 
+    locations = [
+      [row + 2, col + 1], [row + 2, col - 1],
+      [row - 2, col + 1], [row - 2, col - 1],
+      [row + 1, col + 2], [row + 1, col - 2],
+      [row - 1, col + 2], [row - 1, col - 2]
+    ].select { |loc| board.in_board?(loc) }
+
+    return locations - occupied
+  end
+end
+
+class King < Piece
+  SETUP = { white: [[0, 4]], black: [[7, 4]] }
+
+  def move_list(location, board)
+    options = { horizontal: true, vertical: true, diagonal: true, limit: 1 }
+    super(location, board, options)
+  end
+end
+
+class Queen < Piece
+  SETUP = { white: [[0, 3]], black: [[7, 3]] }
+
+  def move_list(location, board)
+    options = { horizontal: true, vertical: true, diagonal: true }
+    super(location, board, options)
+  end
+end
+
+class Rook < Piece
+  SETUP = { white: [[0, 0], [0, 7]], black: [[7, 0], [7, 7]] }
+
+  def move_list(location, board)
+    options = { horizontal: true, vertical: true }
+    super(location, board, options)
+  end
+end
+
+class Bishop < Piece
+  SETUP = { white: [[0, 2], [0, 5]], black: [[7, 2], [7, 5]] }
+
+  def move_list(location, board)
+    options = { diagonal: true }
+    super(location, board, options)
+  end
 end
