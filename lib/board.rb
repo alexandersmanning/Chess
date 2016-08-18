@@ -38,8 +38,18 @@ class Board
   end
 
   def piece_locations(player)
-    grid_search({:player => player})
+    grid_search({player: player})
   end
+
+  def piece_list(player)
+    piece_locations(player).each_with_object([]) do |location, pieces|
+      pieces << self[*location]
+    end 
+  end 
+
+  def piece_by_type(player, piece)
+    grid_search({player: player, class: piece})
+  end 
 
   def get_occupied
     PLAYER_COLORS.inject([]) do |list, player_color|
@@ -56,6 +66,14 @@ class Board
       end
     end
   end
+
+  def move(from, to)
+    moved_piece, captured_piece = self[*from], self[*to]
+    self[*from] = nil
+    self[*to] = moved_piece 
+
+    return captured_piece
+  end 
 
   def move_list(location, limit, occupied)
     [:-, :+].each_with_object([]) do |sign, location_list|

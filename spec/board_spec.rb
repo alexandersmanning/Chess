@@ -55,6 +55,30 @@ describe "Board" do
     it "finds specific pieces"
   end
 
+  describe "#move" do 
+    it "moves a piece to a new location" do 
+      expect(board.move([0,4],[1,4])).to eq nil
+      expect(board[1,4]).to be_a_kind_of(Piece) 
+    end 
+
+    it "moves a piece" do 
+      new_piece = Piece.new(:black)
+      prev_piece = board[0,4]
+      board[1,4] = new_piece 
+
+      expect(board.move([0,4],[1,4])).to eq new_piece 
+      expect(board[1,4]).to eq prev_piece
+    end 
+  end 
+
+  describe "#piece_list" do 
+    it "gets all of a player's pieces" do 
+      list = board.piece_list(:white)
+      expect(list.count { |item| item.class == Piece }).to eq 5
+      expect(list.count { |item| item.player == :white }).to eq 5
+    end 
+  end 
+
   describe "#horizontal" do
     it "provides a list of horizontal moves" do
       list = (0..7).map { |n| [3, n] } - [[3, 1]]

@@ -1,6 +1,7 @@
 require 'rspec'
 require 'board'
 require 'piece'
+require 'byebug'
 
 describe "Piece" do
   let(:piece_black) { Piece.new(:black) }
@@ -101,4 +102,38 @@ describe "Knight" do
 
     expect(knight.move_list([2,7], board).sort).to match [[0, 6], [3, 5], [4, 6]]
   end
+
+  describe "Pawn" do 
+    let(:board) { Board.new }
+
+    before :each do
+      board.setup
+      @white_pawn = board[1, 6]
+    end
+
+    it "should be allowed to move one or two spaces forward" do
+      expect(@white_pawn.move_list([1,6],board).sort).to match [[2,6], [3,6]]
+    end 
+
+    it "Can capture diagonally" do 
+      board[2,5] = Knight.new(:black)
+      expect(@white_pawn.move_list([1,6],board).sort).to match [[2,5], [2,6], [3,6]]
+    end 
+
+    it "Cannot capture moving forward" do 
+      board[2,6] = King.new(:black)
+      expect(@white_pawn.move_list([1,6], board).sort).to be_empty
+    end 
+
+    it "Won't move diagonally if player's piece is there" do 
+       board[2,6] = King.new(:white)
+      expect(@white_pawn.move_list([1,6], board).sort).to be_empty
+    end
+  end 
 end
+
+# you want to see if king is in check 
+  #find location of king, and see if any opposing player can attack king
+
+#you want to see if king is check mate 
+  #compile list of all moves available to king, and see if any of those moves are on opponents move list

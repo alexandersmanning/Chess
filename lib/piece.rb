@@ -1,5 +1,5 @@
 class Piece
-  attr_accessor :player
+  attr_accessor :player, :has_moved
 
   def initialize(player)
     @player = player
@@ -16,22 +16,44 @@ class Piece
 
     return moves - board.piece_locations(@player)
   end
+
+  def move_action
+    @has_moved = true 
+  end 
+
 end
 
 class Pawn < Piece
-  SETUP = { white: (0..7).map { |n| [1, n] }, black: (0..7).map { |n| [6, n] } }
+  SETUP = { 
+    white: (0..7).map { |n| [1, n] }, 
+    black: (0..7).map { |n| [6, n] }
+     }
   DIR = { white: :+, black: :- }
+
+#clean this guy up
+  def initialize(player)
+    @en_passant = []
+    super(player)
+  end 
+
+  def set_en_passant(locaiton)
+    @en_passant = location
+  end 
+
   def move_list(location, board)
     row, col = *location
-    occupied = board.get_occupied
+    list, occupied = [], board.get_occupied
 
-    list = [row.send(DIR[@player], 1), col]
+    [1,2].each do |num|
+      row_dir = row.send(DIR[@player], num)
+      break if occupied.include?([row_dir, col]) || (@has_moved && num == 2)
+      list << [row_dir, col]
+    end
+
     list.push *([
       [row.send(DIR[@player], 1), col + 1],
       [row.send(DIR[@player], 1), col - 1]
       ] & occupied)
-
-    list.push [row.send(DIR[@player], 2), col] unless @has_moved
 
     list - board.piece_locations(@player)
   end
