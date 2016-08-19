@@ -136,4 +136,4 @@ end
   #find location of king, and see if any opposing player can attack king
 
 #you want to see if king is check mate 
-  #compile list of all moves available to king, and see if any of those moves are on opponents move list
+  #compile list of all moves available to king, and see if any of those moves are on opponents move list. Then see if there are any pieces that can block the king

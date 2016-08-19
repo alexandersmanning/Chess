@@ -72,10 +72,24 @@ describe "Board" do
   end 
 
   describe "#piece_list" do 
+
+    before :each do  
+      2.times do |n| 
+        board[5, n] = Pawn.new(:white)
+        board[6, n] = Pawn.new(:black)
+      end 
+    end 
+
     it "gets all of a player's pieces" do 
       list = board.piece_list(:white)
       expect(list.count { |item| item.class == Piece }).to eq 5
-      expect(list.count { |item| item.player == :white }).to eq 5
+      expect(list.count { |item| item.player == :white }).to eq 7
+    end 
+
+     it "gets all of a player's pieces" do 
+      list = board.piece_by_type(:white, Pawn)
+      expect(list.count { |item| board[*item].class == Pawn }).to eq 2
+      expect(list.count { |item| board[*item].player == :white }).to eq 2
     end 
   end 
 
