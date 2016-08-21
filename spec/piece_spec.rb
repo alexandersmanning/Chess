@@ -109,10 +109,16 @@ describe "Knight" do
     before :each do
       board.setup
       @white_pawn = board[1, 6]
+      @limited_pawn = Pawn.new(:black)
+      board[0,6] = @limited_pawn
     end
 
     it "should be allowed to move one or two spaces forward" do
       expect(@white_pawn.move_list([1,6],board).sort).to match [[2,6], [3,6]]
+    end 
+
+    it "should only have moves within the board" do 
+      expect(@limited_pawn.move_list([0,6], board)).to be_empty
     end 
 
     it "Can capture diagonally" do 

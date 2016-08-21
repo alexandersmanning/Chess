@@ -71,4 +71,30 @@ describe "Game" do
 			expect(game.get_opponent_moves(board).sort).to match move_list.sort
 		end 
 	end 
+
+	describe "#sumulate_moves" do 
+		before :each do 
+			@clone_board = Board.new 
+			@game_s = Game.new
+			allow(game).to receive(:board).and_return(@clone_board)
+
+			@pawn_13 = Pawn.new(:black)
+			@pawn_15 = Pawn.new(:black)
+			@rook_14 = Rook.new(:black)
+			@bishop_32 = Bishop.new(:black)
+
+			@king_04 = King.new(:white)
+
+			[[@pawn_13, [1,3]], [@pawn_15, [1,5]], [@rook_14, [1,4]], [@bishop_32, [3, 2]], [@king_04, [0,4]]].each do |piece|
+				@clone_board[*piece[1]] = piece[0]
+			end 
+		end 
+
+		it "find all allowed locations for a selected piece"
+
+		it "works if selected piece is king" do 
+			location = [0, 4]
+			expect(game.simulate_moves(location)).to match [[0, 3], [0, 5]]
+		end 
+	end 
 end 

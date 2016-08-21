@@ -55,7 +55,7 @@ class Pawn < Piece
       [row.send(DIR[@player], 1), col - 1]
       ] & occupied)
 
-    list - board.piece_locations(@player)
+    (list - board.piece_locations(@player)).select { |loc| board.in_board?(loc)}
   end
 end
 
