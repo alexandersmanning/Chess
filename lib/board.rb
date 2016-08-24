@@ -109,4 +109,7 @@ class Board
     return rl + lr
   end
 
+  def display
+    #Display board with numbers on top, bottom and side 
+  end 
 end
