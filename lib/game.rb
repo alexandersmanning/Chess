@@ -1,3 +1,8 @@
+require_relative 'player'
+require_relative 'board'
+require_relative 'string'
+require_relative 'piece'
+
 class Game 
 	attr_accessor :board, :players, :current_player
 	def initialize
@@ -12,6 +17,8 @@ class Game
 	end 
 
 	def play_game 
+		byebug
+		setup 
 		until in_check?(board) && check_mate?
 			turn 
 			switch_players!
@@ -21,12 +28,17 @@ class Game
 	def turn 
 		location, allowed_moves = *get_piece
 		to_location = get_to_location(allowed_moves)
-		#put a message saying if something was captured
+
+		piece = board[*location].class
+		captured = board.move(location, to_location)
+
+		puts "#{current_player.color.to_s.capitalize} #{piece} moved from #{location} to #{to_location}"
+		puts "#{current_player.color.to_s.capitalize} #{captured.class} was captured" unless captured.nil?
 	end 
 
 	def get_piece 
+		puts @board.display
 		puts "#{@current_player.name}: Choose enter the coordinates for the piece you would like to move"
-		#display board
 		begin 
 			location = current_player.get_move
 			raise unless !@board[*location].nil? && 

@@ -1,4 +1,5 @@
 require_relative 'piece'
+require_relative 'string'
 
 class Board
   attr_accessor :grid
@@ -110,6 +111,15 @@ class Board
   end
 
   def display
-    #Display board with numbers on top, bottom and side 
+    grid.inject([]) do |display, row|
+      display << "|#{display_line(row)}|"
+    end.reverse.join("\n")
   end 
+
+  def display_line(row)
+    row.inject([]) do |line, piece|
+      line << " #{piece.nil? ? " ".color : piece.character } "
+    end.join("|") 
+  end 
+
 end

@@ -1,3 +1,5 @@
+require_relative 'string'
+
 class Piece
   attr_accessor :player, :has_moved
 
@@ -21,6 +23,22 @@ class Piece
     @has_moved = true 
   end 
 
+  def character
+    case self.class.to_s
+    when "King"
+      @player == :black ? "\u2654" : "\u265A"
+    when "Queen"
+      @player == :black ? "\u2655" : "\u265B"
+    when "Rook"
+      @player == :black ? "\u2656" : "\u265C"
+    when "Bishop"
+      @player == :black ? "\u2657" : "\u265D"
+    when "Knight"
+      @player == :black ? "\u2658" : "\u265E"
+    when "Pawn"
+      @player == :black ? "\u2659" : "\u265F"
+    end
+  end
 end
 
 class Pawn < Piece
