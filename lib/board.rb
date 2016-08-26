@@ -110,16 +110,38 @@ class Board
     return rl + lr
   end
 
-  def display
-    grid.inject([]) do |display, row|
+  def display(player)
+    player == :white ? board_display : board_display.reverse
+  end 
+
+  def board_display
+    display_grid = grid.inject([]) do |display, row|
       display << "|#{display_line(row)}|"
-    end.reverse.join("\n")
+    end
+
+    number_line = display_horizontal_marker
+    display_grid = display_vertical_marker(display_grid.reverse)
+    display_grid.unshift(number_line).push(number_line)
   end 
 
   def display_line(row)
-    row.inject([]) do |line, piece|
+   line_set = row.inject([]) do |line, piece|
       line << " #{piece.nil? ? " ".color : piece.character } "
     end.join("|") 
+  end 
+
+  def display_vertical_marker(display_grid)    
+    (board_size + 1).downto(1).each_with_index.map do |num, idx|
+      display_grid[idx].insert(0, num.to_s) << num.to_s
+    end 
+  end 
+
+  def display_horizontal_marker
+    number_line = ("A".."H").inject([]) do |line, num|
+      line << " #{num} "
+    end.join(" ") 
+
+    "  #{number_line}  "
   end 
 
 end

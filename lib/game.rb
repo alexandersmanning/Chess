@@ -17,7 +17,6 @@ class Game
 	end 
 
 	def play_game 
-		byebug
 		setup 
 		until in_check?(board) && check_mate?
 			turn 
@@ -32,15 +31,15 @@ class Game
 		piece = board[*location].class
 		captured = board.move(location, to_location)
 
-		puts "#{current_player.color.to_s.capitalize} #{piece} moved from #{location} to #{to_location}"
+		puts "#{current_player.color.to_s.capitalize} #{piece} moved from #{location_output(location)} to #{location_output(to_location)}"
 		puts "#{current_player.color.to_s.capitalize} #{captured.class} was captured" unless captured.nil?
 	end 
 
 	def get_piece 
-		puts @board.display
-		puts "#{@current_player.name}: Choose enter the coordinates for the piece you would like to move"
+		puts @board.display(current_player.color)
+		puts "#{@current_player.name}: Enter the coordinates for the piece you would like to move (e.g. 3C)"
 		begin 
-			location = current_player.get_move
+			location = convert_location(current_player.get_move)
 			raise unless !@board[*location].nil? && 
 										@board[*location].player == @current_player.color
 
@@ -57,7 +56,7 @@ class Game
 	def get_to_location(allowed_moves) 
 		puts "Please enter where you would like to move the piece"
 		begin 
-			location = current_player.get_move 
+			location = convert_location(current_player.get_move) 
 			raise unless allowed_moves.include?(location)
 		rescue 
 			puts "You cannot move your piece there"
@@ -65,6 +64,18 @@ class Game
 		end 
 
 		return location
+	end 
+
+	def convert_location(location)
+		row = location.first.to_i - 1
+		col = ("A".."H").to_a.index(location.last.upcase)
+		[row, col]
+	end 
+
+	def location_output(location)
+		row = location.first + 1
+		col = ("A".."H").to_a[location.last]
+		"#{row}#{col}"
 	end 
 
 	def get_opponent 
@@ -122,5 +133,4 @@ class Game
 		end.empty? 
 	end 
 
-	#if in check, verify check mate, else simulate move 
 end 

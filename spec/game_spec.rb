@@ -172,4 +172,16 @@ describe "Game" do
 			expect(game.check_mate?).to be_falsey
 		end 
 	end 
+
+	describe "#convert_location" do 
+		it "converts the location into a computer useable format" do 
+			expect(game.convert_location(["2","A"])).to match [1, 0]
+		end 
+	end 
+
+	describe "#location_output" do 
+		it "convert coordinates to a location" do 
+			expect(game.location_output([2, 3])).to eq "3D"
+		end 
+	end 
 end 
