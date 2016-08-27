@@ -1,5 +1,6 @@
 class Player 
 	attr_accessor :color, :name
+
 	def initialize(color)
 		@color = color 
 	end 
@@ -11,14 +12,15 @@ class Player
 
 	def get_move 
 		begin 
-			input = gets.chomp.scan(/(\d).*(\w)/).first
-			raise if input.count < 2
+			input = gets.chomp.upcase
+			if (options = input.scan(/save|back|exit|\d.?\w/i)).empty?
+				raise 
+			else 
+				return options.first 
+			end 
 		rescue 
-			puts "you must enter a valid set of coordinates"
+			puts "Your entry is not a valid option"
 			retry 
-		end
-
-		input 
-	end 
-
+		end 
+	end  
 end 

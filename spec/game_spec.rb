@@ -21,7 +21,7 @@ describe "Game" do
 
 		allow(game).to receive(:players).and_return([player_1, player_2])
 		allow(game).to receive(:current_player).and_return(player_1)
-	end 
+	end c
 
 	describe "#in_check" do 
 		before :each do 
