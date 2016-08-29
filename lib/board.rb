@@ -69,9 +69,13 @@ class Board
   end
 
   def move(from, to)
-    moved_piece, captured_piece = self[*from], self[*to]
+    moved_piece = self[*from]
+    captured_piece_location = moved_piece.move_action(from, to, self)
+    captured_piece = self[*captured_piece_location]
+
     self[*from] = nil
     self[*to] = moved_piece 
+    self[*captured_piece_location] = nil unless captured_piece_location == to
 
     return captured_piece
   end 

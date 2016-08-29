@@ -59,6 +59,7 @@ describe "Board" do
     it "moves a piece to a new location" do 
       expect(board.move([0,4],[1,4])).to eq nil
       expect(board[1,4]).to be_a_kind_of(Piece) 
+      expect(board[1,4].has_moved).to be_truthy
     end 
 
     it "moves a piece" do 
@@ -69,6 +70,20 @@ describe "Board" do
       expect(board.move([0,4],[1,4])).to eq new_piece 
       expect(board[1,4]).to eq prev_piece
     end 
+
+    it "removes en passant pieces" do 
+      capturing_piece = Piece.new(:black)
+      captured_piece = Piece.new(:white)
+
+      allow(capturing_piece).to receive(:move_action).and_return([5, 3])
+      board[5, 2] = capturing_piece 
+      board[5, 3] = captured_piece 
+
+      piece = board.move([5,2],[4,3])
+      expect(piece).to eq captured_piece 
+      expect(board[5,3]).to be_nil
+      expect(board[4,3]).to eq capturing_piece
+    end  
   end 
 
   describe "#piece_list" do 

@@ -102,44 +102,81 @@ describe "Knight" do
 
     expect(knight.move_list([2,7], board).sort).to match [[0, 6], [3, 5], [4, 6]]
   end
-
-  describe "Pawn" do 
-    let(:board) { Board.new }
-
-    before :each do
-      board.setup
-      @white_pawn = board[1, 6]
-      @limited_pawn = Pawn.new(:black)
-      board[0,6] = @limited_pawn
-    end
-
-    it "should be allowed to move one or two spaces forward" do
-      expect(@white_pawn.move_list([1,6],board).sort).to match [[2,6], [3,6]]
-    end 
-
-    it "should only have moves within the board" do 
-      expect(@limited_pawn.move_list([0,6], board)).to be_empty
-    end 
-
-    it "Can capture diagonally" do 
-      board[2,5] = Knight.new(:black)
-      expect(@white_pawn.move_list([1,6],board).sort).to match [[2,5], [2,6], [3,6]]
-    end 
-
-    it "Cannot capture moving forward" do 
-      board[2,6] = King.new(:black)
-      expect(@white_pawn.move_list([1,6], board).sort).to be_empty
-    end 
-
-    it "Won't move diagonally if player's piece is there" do 
-       board[2,6] = King.new(:white)
-      expect(@white_pawn.move_list([1,6], board).sort).to be_empty
-    end
-  end 
 end
 
-# you want to see if king is in check 
-  #find location of king, and see if any opposing player can attack king
+describe "Pawn" do 
+  let(:board) { Board.new }
 
-#you want to see if king is check mate 
-  #compile list of all moves available to king, and see if any of those moves are on opponents move list. Then see if there are any pieces that can block the king
+  before :each do
+    board.setup
+    @white_pawn = board[1, 6]
+    @limited_pawn = Pawn.new(:black)
+    board[0,6] = @limited_pawn
+  end
+
+  it "should be allowed to move one or two spaces forward" do
+    expect(@white_pawn.move_list([1,6],board).sort).to match [[2,6], [3,6]]
+  end 
+
+  it "should only have moves within the board" do 
+    expect(@limited_pawn.move_list([0,6], board)).to be_empty
+  end 
+
+  it "Can capture diagonally" do 
+    board[2,5] = Knight.new(:black)
+    expect(@white_pawn.move_list([1,6],board).sort).to match [[2,5], [2,6], [3,6]]
+  end 
+
+  it "Cannot capture moving forward" do 
+    board[2,6] = King.new(:black)
+    expect(@white_pawn.move_list([1,6], board).sort).to be_empty
+  end 
+
+  it "Won't move diagonally if player's piece is there" do 
+     board[2,6] = King.new(:white)
+    expect(@white_pawn.move_list([1,6], board).sort).to be_empty
+  end
+
+  it "Won't move two spaces if it has already moved" do 
+    @white_pawn.has_moved = true 
+    expect(@white_pawn.move_list([1,6], board).sort).to match [[2,6]]
+  end 
+
+  context "en passant" do 
+    before :each do 
+      @capture_pawn = Pawn.new(:black)
+      board[3, 5] = @capture_pawn 
+    end 
+
+    it "sets en passant" do 
+      board[3,6] = @white_pawn
+      @white_pawn.move_action([1,6],[3,6], board)
+      
+      expect(@white_pawn.en_passant).to be_truthy
+    end 
+
+    it "add diagonal if en passant is available" do 
+      board[3,6] = @white_pawn
+      @white_pawn.en_passant = true 
+
+      expect(@capture_pawn.move_en_passant([3,5], board)).to match [[2,6]]
+    end 
+
+    it "returns the en-passant piece's location if the move was diagonal" do 
+      board[3,6] = @white_pawn
+      @white_pawn.en_passant = true 
+
+      expect(@capture_pawn.move_action([3,6],[2,6], board)).to match [3,6]
+    end 
+
+    it "Returns the regular loction if not en-passant" do 
+      board[3,6] = @white_pawn
+      @white_pawn.en_passant = true 
+
+      @white_pawn_24 = Pawn.new(:white)
+      board[2, 4] = @white_pawn_24
+
+      expect(@capture_pawn.move_action([3,6],[2,4], board)).to match [2,4]
+    end 
+  end 
+end 

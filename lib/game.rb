@@ -2,17 +2,20 @@ require_relative 'player'
 require_relative 'board'
 require_relative 'string'
 require_relative 'piece'
+require 'yaml'
 
 class Game 
 	attr_accessor :board, :players, :current_player
 	def initialize
 		@check = false
+		@players = []
 	end 
 
 	def play_game 
 		setup 
 		until (@check = in_check?(board)) && check_mate?
 			turn 
+			remove_en_passant
 			switch_players!
 		end 
 	end 
@@ -21,7 +24,9 @@ class Game
 		system('clear')
 		puts "Welcome to Chess\nDo you want to start a new game or continue a previous game? ('N' for new, 'L' for load)"
 
-		input = gets.chomp.scan(/[lL]/).first
+		if __FILE__ == $PROGRAM_NAME 
+			input = gets.chomp.scan(/[lL]/).first
+		end 
 		if !input.nil? && input.upcase == 'L'
 			game = load_game_data
 			@board = game.board 
@@ -186,6 +191,12 @@ class Game
 		board.piece_locations(player).inject([]) do |moves, location|
 			moves.push *simulate_moves(location)
 		end.empty? 
+	end 
+
+	def remove_en_passant 
+		board.piece_by_type(get_opponent.color, Pawn).each do |piece|
+			board[*piece].en_passant = false 
+		end 
 	end 
 
 	def save_game_data

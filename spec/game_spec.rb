@@ -21,7 +21,7 @@ describe "Game" do
 
 		allow(game).to receive(:players).and_return([player_1, player_2])
 		allow(game).to receive(:current_player).and_return(player_1)
-	end c
+	end 
 
 	describe "#in_check" do 
 		before :each do 
@@ -182,6 +182,17 @@ describe "Game" do
 	describe "#location_output" do 
 		it "convert coordinates to a location" do 
 			expect(game.location_output([2, 3])).to eq "3D"
+		end 
+	end 
+
+	describe "#remove_en_passant" do 
+		it "removes all en passant from the opponent once a move is complete" do 
+			board[6, 1].en_passant = true 
+			board[6, 5].en_passant = true 
+
+			game.remove_en_passant 
+			expect(board[6 ,1].en_passant).to be_falsey
+			expect(board[6, 5].en_passant).to be_falsey
 		end 
 	end 
 end 

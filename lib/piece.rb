@@ -19,8 +19,9 @@ class Piece
     return moves - board.piece_locations(@player)
   end
 
-  def move_action
-    @has_moved = true 
+  def move_action(from, to, board)
+    @has_moved = true
+    return to 
   end 
 
   def character
@@ -42,6 +43,8 @@ class Piece
 end
 
 class Pawn < Piece
+  attr_accessor :en_passant
+
   SETUP = { 
     white: (0..7).map { |n| [1, n] }, 
     black: (0..7).map { |n| [6, n] }
@@ -50,12 +53,47 @@ class Pawn < Piece
 
 #clean this guy up
   def initialize(player)
-    @en_passant = []
+    @en_passant = false
     super(player)
   end 
 
-  def set_en_passant(locaiton)
-    @en_passant = location
+  def move_action(from, to, board)
+    if from.first.send(DIR[@player], 2) == to.first
+      @en_passant = check_en_passant(to, board)
+    end 
+
+    piece = board[from.first, to.last]
+    unless piece.nil? || piece.class != Pawn 
+      to = [from.first, to.last] if piece.player != self.player && piece.en_passant
+    end 
+    super(from, to, board)
+  end 
+
+  def check_en_passant(location, board)
+    get_en_passant(location, board) do |piece|
+      return true 
+    end 
+  end 
+
+  def move_en_passant(location, board)
+    move_list = []
+
+    get_en_passant(location, board) do |piece, row, col|
+      move_list << [row.send(DIR[@player], 1), col] 
+    end 
+
+    return move_list
+  end 
+
+  def get_en_passant(location, board)
+    row, col = *location
+
+    [1, -1].each do |num|
+      piece = board[row, col + num]
+      unless piece.nil? || piece.class != Pawn
+        yield(piece, row, col + num) if piece.player != self.player
+      end 
+    end 
   end 
 
   def move_list(location, board)
@@ -72,6 +110,8 @@ class Pawn < Piece
       [row.send(DIR[@player], 1), col + 1],
       [row.send(DIR[@player], 1), col - 1]
       ] & occupied)
+
+    list.push *move_en_passant(location, board)
 
     (list - board.piece_locations(@player)).select { |loc| board.in_board?(loc)}
   end
