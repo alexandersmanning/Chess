@@ -46,14 +46,16 @@ class Game
 			system("clear")
 			puts @board.display(current_player.color)
 			puts "You are in check\n" if @check
-			puts "#{@current_player.name.capitalize}: Enter the coordinates for the piece you would like to move (e.g. 3C), or a command (Save, Exit)"
+			puts "#{@current_player.name.capitalize}: Enter the coordinates for the piece you would like to move (e.g. 3C), or a command (Save, Exit):\n"
 			
 			input = get_input 
 			raise if input == "back"
 			location, allowed_moves = *get_piece(input)
 
 			piece = board[*location].class
-			puts "Enter where you want to move your #{piece}\nor enter Save, Back, or Exit\r"
+			puts @board.display(current_player.color, {move_list: allowed_moves})
+			puts "\nEnter where you want to move your #{piece}, or enter Save, Back, or Exit"
+
 			input = get_to_location(allowed_moves)
 
 			raise if input == "back"
@@ -233,9 +235,7 @@ class Game
 
 		return input - 1
 	end 
-
-
 end 
 
-# game = Game.new 
-# game.play_game
+game = Game.new 
+game.play_game

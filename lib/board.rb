@@ -114,13 +114,13 @@ class Board
     return rl + lr
   end
 
-  def display(player)
-    player == :white ? board_display : board_display.reverse
+  def display(player, options = {})
+    player == :white ? board_display(options) : board_display(options).reverse
   end 
 
-  def board_display
-    display_grid = grid.inject([]) do |display, row|
-      display << "|#{display_line(row)}|"
+  def board_display(options = {})
+    display_grid = grid.each_with_index.inject([]) do |display, (row, idx)|
+      display << "|#{display_line(row, idx, options)}|"
     end
 
     number_line = display_horizontal_marker
@@ -128,9 +128,15 @@ class Board
     display_grid.unshift(number_line).push(number_line)
   end 
 
-  def display_line(row)
-   line_set = row.inject([]) do |line, piece|
-      line << " #{piece.nil? ? " ".color : piece.character } "
+  def display_line(row, id_row, options = {})
+   line_set = row.each_with_index.inject([]) do |line, (piece, id_col)|
+      piece_string = " #{piece.nil? ? " " : piece.character } "
+
+      if options[:move_list] && options[:move_list].include?([id_row, id_col])
+        piece_string = piece_string.bg_color(:red)
+      end 
+
+      line << piece_string
     end.join("|") 
   end 
 
@@ -146,6 +152,10 @@ class Board
     end.join(" ") 
 
     "  #{number_line}  "
+  end 
+
+  def display_moves(move_list) 
+    #background color the squares with the moves
   end 
 
 end

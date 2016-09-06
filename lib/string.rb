@@ -11,6 +11,11 @@ class String
     else colorize(31)
     end
   end
+
+  def bg_color(input = nil) 
+    colorize(41) if input == :red
+    
+  end 
 end 
 
   
