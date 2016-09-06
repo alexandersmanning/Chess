@@ -55,58 +55,58 @@ describe "Board" do
     it "finds specific pieces"
   end
 
-  describe "#move" do 
-    it "moves a piece to a new location" do 
+  describe "#move" do
+    it "moves a piece to a new location" do
       expect(board.move([0,4],[1,4])).to eq nil
-      expect(board[1,4]).to be_a_kind_of(Piece) 
+      expect(board[1,4]).to be_a_kind_of(Piece)
       expect(board[1,4].has_moved).to be_truthy
-    end 
+    end
 
-    it "moves a piece" do 
+    it "moves a piece" do
       new_piece = Piece.new(:black)
       prev_piece = board[0,4]
-      board[1,4] = new_piece 
+      board[1,4] = new_piece
 
-      expect(board.move([0,4],[1,4])).to eq new_piece 
+      expect(board.move([0,4],[1,4])).to eq new_piece
       expect(board[1,4]).to eq prev_piece
-    end 
+    end
 
-    it "removes en passant pieces" do 
+    it "removes en passant pieces" do
       capturing_piece = Piece.new(:black)
       captured_piece = Piece.new(:white)
 
       allow(capturing_piece).to receive(:move_action).and_return([5, 3])
-      board[5, 2] = capturing_piece 
-      board[5, 3] = captured_piece 
+      board[5, 2] = capturing_piece
+      board[5, 3] = captured_piece
 
       piece = board.move([5,2],[4,3])
-      expect(piece).to eq captured_piece 
+      expect(piece).to eq captured_piece
       expect(board[5,3]).to be_nil
       expect(board[4,3]).to eq capturing_piece
-    end  
-  end 
+    end
+  end
 
-  describe "#piece_list" do 
+  describe "#piece_list" do
 
-    before :each do  
-      2.times do |n| 
+    before :each do
+      2.times do |n|
         board[5, n] = Pawn.new(:white)
         board[6, n] = Pawn.new(:black)
-      end 
-    end 
+      end
+    end
 
-    it "gets all of a player's pieces" do 
+    it "gets all of a player's pieces" do
       list = board.piece_list(:white)
       expect(list.count { |item| item.class == Piece }).to eq 5
       expect(list.count { |item| item.player == :white }).to eq 7
-    end 
+    end
 
-     it "gets all of a player's pieces" do 
+     it "gets all of a player's pieces" do
       list = board.piece_by_type(:white, Pawn)
       expect(list.count { |item| board[*item].class == Pawn }).to eq 2
       expect(list.count { |item| board[*item].player == :white }).to eq 2
-    end 
-  end 
+    end
+  end
 
   describe "#horizontal" do
     it "provides a list of horizontal moves" do
@@ -203,5 +203,13 @@ describe "Board" do
         end
       end
     end
+  end
+
+  describe "#promote" do
+    it "gives the player a choice of updating a piece when one makes it to the other side of the row"
+
+    it "knows that for white, the row is 7, for black the row is 0"
+
+    it "replaces the piece with a new one"
   end
 end

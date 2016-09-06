@@ -3,52 +3,56 @@ require_relative 'board'
 require_relative 'string'
 require_relative 'piece'
 require 'yaml'
+require 'byebug'
 
-class Game 
+class Game
 	attr_accessor :board, :players, :current_player
 	def initialize
 		@check = false
 		@players = []
-	end 
+	end
 
-	def play_game 
-		setup 
+	def play_game
+		setup
 		until (@check = in_check?(board)) && check_mate?
-			turn 
+			turn
 			remove_en_passant
 			switch_players!
-		end 
-	end 
+		end
 
-	def setup 
+		puts "#{get_opponent.name} won"
+		puts @board.display(get_opponent.color)
+	end
+
+	def setup
 		system('clear')
 		puts "Welcome to Chess\nDo you want to start a new game or continue a previous game? ('N' for new, 'L' for load)"
 
-		if __FILE__ == $PROGRAM_NAME 
+		if __FILE__ == $PROGRAM_NAME
 			input = gets.chomp.scan(/[lL]/).first
-		end 
+		end
 		if !input.nil? && input.upcase == 'L'
 			game = load_game_data
-			@board = game.board 
-			@players = game.players 
+			@board = game.board
+			@players = game.players
 			@current_player = game.current_player
 		else
 			@board = Board.new
 			@board.setup
 			get_players
-		end 
-	end 
+		end
+	end
 
-	def turn 
-		piece = nil 
+	def turn
+		piece = nil
 
-		begin 
+		begin
 			system("clear")
 			puts @board.display(current_player.color)
 			puts "You are in check\n" if @check
 			puts "#{@current_player.name.capitalize}: Enter the coordinates for the piece you would like to move (e.g. 3C), or a command (Save, Exit):\n"
-			
-			input = get_input 
+
+			input = get_input
 			raise if input == "back"
 			location, allowed_moves = *get_piece(input)
 
@@ -60,19 +64,22 @@ class Game
 
 			raise if input == "back"
 			to_location = input
-		rescue 
-			retry 
-		end 
+		rescue
+			retry
+		end
 
 		captured = board.move(location, to_location)
+		if check_promote(to_location.first, board[*to_location])
+			board[*to_location] = get_promote_piece
+		end
 
 		puts "#{current_player.color.to_s.capitalize} #{piece} moved from #{location_output(location)} to #{location_output(to_location)}"
 		puts "#{get_opponent.color.to_s.capitalize} #{captured.class} was captured" unless captured.nil?
-	end 
+	end
 
-	def get_input(in_check = false) 
+	def get_input(in_check = false)
 		analyze_input(current_player.get_move)
-	end 
+	end
 
 	def get_piece(input)
 		begin
@@ -87,155 +94,185 @@ class Game
 			input = ""
 			puts "Please enter piece coordinates"
 			input = get_input until input.is_a?(Array)
-			retry 
-		end 
-	end 
+			retry
+		end
+	end
 
-	def get_to_location(allowed_moves) 
-		begin 
+	def get_to_location(allowed_moves)
+		begin
 			input = analyze_input(current_player.get_move)
 			return input if input == 'back'
-			location = convert_location(input) 
+			location = convert_location(input)
 			raise unless allowed_moves.include?(location)
-		rescue 
+		rescue
 			puts "You cannot move your piece there"
 			retry
-		end 
+		end
 
 		return location
-	end 
+	end
 
 	def analyze_input(input)
-		case input.downcase 
-		when "save" then save_game 
-		when "exit" then exit_game 
+		case input.downcase
+		when "save" then save_game
+		when "exit" then exit_game
 		when "back" then "back"
 		else input.scan(/(\d)[^\w\d]?(\w)/).first
-		end 
-	end 
+		end
+	end
 
 	def save_game
 		puts "game saved!"
 		save_game_data
 		sleep(1)
 		return "back"
-	end 
+	end
 
-	def exit_game 
+	def exit_game
 		puts "Are you sure you want to leave?"
-		input = gets.chomp.scan(/[nN]/) 
+		input = gets.chomp.scan(/[nN]/)
 		exit if input.empty?
 		return "back"
-	end 
+	end
 
 	def convert_location(location)
 		row = location.first.to_i - 1
 		col = ("A".."H").to_a.index(location.last.upcase)
 		[row, col]
-	end 
+	end
 
 	def location_output(location)
 		row = location.first + 1
 		col = ("A".."H").to_a[location.last]
 		"#{row}#{col}"
-	end 
+	end
 
-	def get_opponent 
+	def get_opponent
 		current_player == players.first ? players.last : players.first
-	end 
+	end
 
-	def switch_players! 
+	def switch_players!
 		@current_player = get_opponent
-	end 
+	end
 
-	def get_players 
+	def get_players
 		[:white, :black].each_with_index do |color, n|
-			@players << Player.new(color) 
+			@players << Player.new(color)
 			@players.last.get_name
-		end 
+		end
 
 		@current_player = @players.first
-	end 
+	end
 
-	def clone_board 
+	def clone_board
 		mock_grid = board.grid.map { |row| row.dup }
 		Board.new.tap { |board| board.grid = mock_grid }
-	end 
+	end
 
 	def get_all_moves(board, player)
 		board.piece_locations(player.color).inject([]) do |list, location|
 			list.push *board[*location].move_list(location, board)
 		end.uniq
-	end 
+	end
 
-	def simulate_moves(location) 
+	def simulate_moves(location)
 		piece = board[*location]
-		move_list = piece.move_list(location, board)	
+		move_list = piece.move_list(location, board)
 
-		move_list.inject([]) do |moves, new_location| 
-			mock_board = clone_board.tap do |board| 
-				board.move(location, new_location) 
+		move_list.inject([]) do |moves, new_location|
+			mock_board = clone_board.tap do |board|
+				board.move(location, new_location)
 			end
 
 			in_check?(mock_board) ? moves : moves << new_location
-		end 
-	end 
+		end
+	end
 
 	def in_check?(board)
-		king_location = board.piece_by_type(current_player.color, King).first 
+		king_location = board.piece_by_type(current_player.color, King).first
 
 		get_all_moves(board, get_opponent).include?(king_location)
-	end 
+	end
 
 	def check_mate?
 		player = current_player.color
 
 		board.piece_locations(player).inject([]) do |moves, location|
 			moves.push *simulate_moves(location)
-		end.empty? 
-	end 
+		end.empty?
+	end
 
-	def remove_en_passant 
+	def remove_en_passant
 		board.piece_by_type(get_opponent.color, Pawn).each do |piece|
-			board[*piece].en_passant = false 
-		end 
-	end 
+			board[*piece].en_passant = false
+		end
+	end
+
+	def check_promote(row, piece)
+		player = current_player.color
+
+		piece.class == Pawn &&
+		(row == 0 && player == :black || row == 7 && player == :white)
+end
+
+	def get_promote_piece
+		begin
+			puts "Please choose a promotion piece"
+
+			piece_list = [Queen, Rook, Bishop, Knight]
+			list = piece_list.each_with_index.inject("") do |list, (piece, idx)|
+				list << "#{idx + 1}: #{piece}\n"
+			end
+			puts list
+
+			input = gets.chomp.scan(/\d/).first
+			raise if input.nil? || !input.to_i.between?(1,4)
+		rescue
+			puts "Please choose a numbe between 1 - 4"
+			retry
+		end
+
+		piece_list[input.to_i - 1].send(:new, current_player.color)
+	end
 
 	def save_game_data
-		time = Time.new 
+		time = Time.new
 		time_string = "#{time.year}#{time.month}#{time.day}_#{time.hour}#{time.min}"
-		
+
 		Dir.mkdir("file") unless File.directory?("file")
-		File.open("file/chess_game_#{time_string}.txt", 'w') do |f| 
+		File.open("file/chess_game_#{time_string}.txt", 'w') do |f|
 			f.write(YAML.dump(self))
-		end 
-	end 
+		end
+	end
 
 	def load_game_data
 		puts "Please enter a number corresponding to the game you want to load"
 		file_list = Dir.glob('file/chess_game_*.txt')
 		input = display_files(file_list)
 		YAML.load(File.read(file_list[input]))
-	end 
+	end
 
 	def display_files(file_list)
 		count = 0
 		file_list.each_with_index do |fname, idx|
 			puts "#{idx + 1}: #{fname.gsub(/file\//,"")}"
 			count += 1
-		end 
+		end
 
-		begin 
+		begin
 			input = gets.chomp.scan(/\d/).first.to_i
 			raise unless input.between?(1, count)
-		rescue 
+		rescue
 			puts "Please enter a number between 1 and #{count}"
-			retry 
-		end 
+			retry
+		end
 
 		return input - 1
-	end 
-end 
+	end
+end
 
-game = Game.new 
-game.play_game
+
+if __FILE__ == $PROGRAM_NAME
+	game = Game.new
+	game.play_game
+end

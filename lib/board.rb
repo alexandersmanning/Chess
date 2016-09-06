@@ -45,12 +45,12 @@ class Board
   def piece_list(player)
     piece_locations(player).each_with_object([]) do |location, pieces|
       pieces << self[*location]
-    end 
-  end 
+    end
+  end
 
   def piece_by_type(player, piece)
     grid_search({player: player, class: piece})
-  end 
+  end
 
   def get_occupied
     PLAYER_COLORS.inject([]) do |list, player_color|
@@ -74,11 +74,11 @@ class Board
     captured_piece = self[*captured_piece_location]
 
     self[*from] = nil
-    self[*to] = moved_piece 
+    self[*to] = moved_piece
     self[*captured_piece_location] = nil unless captured_piece_location == to
 
     return captured_piece
-  end 
+  end
 
   def move_list(location, limit, occupied)
     [:-, :+].each_with_object([]) do |sign, location_list|
@@ -116,7 +116,7 @@ class Board
 
   def display(player, options = {})
     player == :white ? board_display(options) : board_display(options).reverse
-  end 
+  end
 
   def board_display(options = {})
     display_grid = grid.each_with_index.inject([]) do |display, (row, idx)|
@@ -126,7 +126,7 @@ class Board
     number_line = display_horizontal_marker
     display_grid = display_vertical_marker(display_grid.reverse)
     display_grid.unshift(number_line).push(number_line)
-  end 
+  end
 
   def display_line(row, id_row, options = {})
    line_set = row.each_with_index.inject([]) do |line, (piece, id_col)|
@@ -134,28 +134,28 @@ class Board
 
       if options[:move_list] && options[:move_list].include?([id_row, id_col])
         piece_string = piece_string.bg_color(:red)
-      end 
+      end
 
       line << piece_string
-    end.join("|") 
-  end 
+    end.join("|")
+  end
 
-  def display_vertical_marker(display_grid)    
+  def display_vertical_marker(display_grid)
     (board_size + 1).downto(1).each_with_index.map do |num, idx|
       display_grid[idx].insert(0, num.to_s) << num.to_s
-    end 
-  end 
+    end
+  end
 
   def display_horizontal_marker
     number_line = ("A".."H").inject([]) do |line, num|
       line << " #{num} "
-    end.join(" ") 
+    end.join(" ")
 
     "  #{number_line}  "
-  end 
+  end
 
-  def display_moves(move_list) 
+  def display_moves(move_list)
     #background color the squares with the moves
-  end 
+  end
 
 end
