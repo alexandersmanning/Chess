@@ -1,5 +1,10 @@
 #Command Line Chess
-To learn ruby, I wrote a simple command line version of chess, containing moves for all pieces, move verification (pieces cannot move themselves into check), game save and load functionality, and move marking, which displays available move locations for the player 
+To learn ruby, I wrote a simple command line version of chess which has the following features:
+- Moves for all pieces 
+- Move verification (pieces cannot move themselves into check)
+- Game save and load functionality
+- Move marking, which displays available move locations for the player 
+- Addiitonal moves set including En Passant and Promotion
 
 ##Display 
 Game loading
